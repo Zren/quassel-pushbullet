@@ -1,7 +1,7 @@
 var Quassel = require('libquassel');
 var PushBullet = require('pushbullet');
-var BufferType = require('./node_modules/libquassel/lib/buffer').IRCBuffer.Types;
-var MessageType = require('./node_modules/libquassel/lib/message').Type;
+var BufferType = require('libquassel/lib/buffer').IRCBuffer.Types;
+var MessageType = require('libquassel/lib/message').Type;
 
 var config = require('./config');
 
@@ -14,7 +14,8 @@ function connectToQuasselCore(coreConfig, userConfig) {
 	}
 
 	var quassel = new Quassel(coreConfig.host, coreConfig.port, {
-		backloglimit: 0
+		nobacklog: true,
+		nodebug: true,
 	}, function(next) {
 		next(userConfig.name, userConfig.pass);
 	});
@@ -32,7 +33,7 @@ function connectToQuasselCore(coreConfig, userConfig) {
 		var message = buffer.messages.get(messageId);
 
 		if (message.type == MessageType.Plain || message.type == MessageType.Action) {
-			console.log('buffer.message', buffer.name, message.getNick(), message.content);			
+			// console.log('buffer.message', buffer.name, message.getNick(), message.content);			
 
 			if (message.isSelf())
 				return;
@@ -55,7 +56,7 @@ function connectToQuasselCore(coreConfig, userConfig) {
 }
 
 function main() {
-	var connection = connectToQuasselCore(config.core, config.core.user);	
+	var connection = connectToQuasselCore(config.core, config.core.user);
 }
 
 main();
