@@ -5,12 +5,24 @@ var MessageType = require('libquassel/lib/message').Type;
 
 var config = require('./config');
 
+var logger = {
+	log: function(){ console.log.apply(console, arguments); },
+	debug: function(){
+		var args = Array.prototype.slice.call(arguments);
+		args.unshift('[debug]');
+		console.log.apply(console, args);
+	}
+}
+
 function connectToQuasselCore(coreConfig, userConfig) {
-	var pusher = new PushBullet(userConfig.pushbullet.accessToken);
+	var pusher = new PushBullet(userConfig.pushbullet.accessToken);	
 
 	function sendNotification(title, body) {
-		pusher.note(null, title, body);
-		console.log('[PushBullet]', { title: title, body: body});
+		logger.debug('[PushBullet]', { deviceId: userConfig.pushbullet.deviceId, title: title, body: body});
+		pusher.note(userConfig.pushbullet.deviceId, title, body, function(err, response) {
+			if (err) return console.log('[PushBullet] [error]', JSON.stringify(err));
+			logger.debug('[PushBullet]', response);
+		});
 	}
 
 	var quassel = new Quassel(coreConfig.host, coreConfig.port, {
@@ -24,7 +36,7 @@ function connectToQuasselCore(coreConfig, userConfig) {
 	quassel.on('**', function() {
 		var args = Array.prototype.slice.call(arguments);
 		args.unshift(this.event);
-		// console.log.apply(console, args);
+		// logger.debug.apply(console, args);
 	});
 
 	//
@@ -33,7 +45,7 @@ function connectToQuasselCore(coreConfig, userConfig) {
 		var message = buffer.messages.get(messageId);
 
 		if (message.type == MessageType.Plain || message.type == MessageType.Action) {
-			// console.log('buffer.message', buffer.name, message.getNick(), message.content);			
+			// logger.debug('buffer.message', buffer.name, message.getNick(), message.content);			
 
 			if (message.isSelf())
 				return;
