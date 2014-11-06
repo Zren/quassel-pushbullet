@@ -1,5 +1,8 @@
 var config = {
+	// Debugging
 	debug: false,
+	debugLibQuassel: false,
+
 	core: {
 		host: 'localhost',
 		port: 4242,
@@ -8,7 +11,7 @@ var config = {
 			// This is your Quassel User/Pass
 			name: '',
 			pass: '',
-			
+
 			pushbullet: {
 				// Grab your access token here: https://www.pushbullet.com/account
 				accessToken: '',
@@ -23,7 +26,9 @@ var config = {
 				//			*	Visit https://www.pushbullet.com/ and click a device.
 				//				The URL should now look like https://www.pushbullet.com/?device_iden=ujAjoxHjkmidjAiVsKnSTs
 				//				Copy the device id from the URL.
+				// Eg: deviceId: 'ujAjoxHjkmidjAiVsKnSTs',
 				deviceId: null,
+
 				// OR
 				//		Specify a device nickname.
 				deviceNickname: null,

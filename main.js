@@ -98,7 +98,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 			}
 			var quassel = new Quassel(coreConfig.host, coreConfig.port, {
 				nobacklog: true,
-				nodebug: true,
+				nodebug: !config.debugLibQuassel,
 			}, function(next) {
 				console.log('Connected to QuasselCore');
 				console.log('Logging into QuasselCore');
