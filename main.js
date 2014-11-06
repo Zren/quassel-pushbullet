@@ -41,7 +41,13 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 					pusher.devices(cb);
 				},
 				function(response, cb) {
+					console.log('PushBullet device list response');
+					console.log(response);
 					if (userConfig.pushbullet.deviceId || userConfig.pushbullet.deviceNickname) {
+						console.log('Attempting to find specified deviceId', {
+							deviceId: userConfig.pushbullet.deviceId,
+							deviceNickname: userConfig.pushbullet.deviceNickname
+						});
 						// Find the device
 						for (var i in response.devices) {
 							var device = response.devices[i];
