@@ -2,6 +2,8 @@ var config = {
 	// Debugging
 	debug: false,
 	debugLibQuassel: false,
+	// Debug PushBullet by setting the environment variable NODE_DEBUG=request
+	// Eg: NODE_DEBUG=request node main.js
 
 	core: {
 		host: 'localhost',
@@ -14,6 +16,7 @@ var config = {
 
 			pushbullet: {
 				// Grab your access token here: https://www.pushbullet.com/account
+				// Eg: accessToken: 'v1qabsdfjksdflkjsdaflkahsdfjklasfjksdsdfdfDFi',
 				accessToken: '',
 
 				// Which device to send the notification to.

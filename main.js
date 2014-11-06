@@ -17,15 +17,46 @@ var logger = {
 	}
 }
 
+
+function handleResponse(error, response, body, callback) {
+	if (error) {
+		if (typeof callback === 'function') {
+			callback(error);
+		}
+		return;
+	}
+
+	if (response.statusCode !== 200) {
+		console.log('===========================');
+		console.log('response.statusCode !== 200');
+		console.log('response.statusCode', response.statusCode);
+		console.log('body', body);
+		console.log('===========================');
+		if (typeof callback === 'function') {
+			callback(body);
+		}
+		return;
+	}
+
+	if (typeof callback === 'function') {
+		callback(null, body);
+	}
+};
+
 function connectToQuasselCore(coreConfig, userConfig, callback) {
 	if (!userConfig.pushbullet.accessToken)
 		return console.log('Please configure your pushbullet accessToken.');
 
 	var pusher = new PushBullet(userConfig.pushbullet.accessToken);
+	pusher.handleResponse = handleResponse; // Mixin our own error handler.
 	var deviceId = userConfig.pushbullet.deviceId;
 
 	function sendNotification(title, body) {
-		logger.debug('[PushBullet]', { deviceId: deviceId, title: title, body: body});
+		logger.debug('[PushBullet]', {
+			deviceId: deviceId,
+			title: title,
+			body: body
+		});
 		pusher.note(deviceId, title, body, function(err, response) {
 			if (err) return console.log('[PushBullet] [error]', typeof err === 'object' ? JSON.stringify(err) : err);
 			logger.debug('[PushBullet]', response);
@@ -146,7 +177,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 			cb();
 		}
 	], function(err) {
-		if (err) return console.log('[error]', typeof err === 'object' ? JSON.stringify(err) : err);
+		if (err) return console.log('[error]', err);
 	});
 }
 
