@@ -5,8 +5,10 @@ var config = {
 		port: 4242,
 
 		user: {
+			// This is your Quassel User/Pass
 			name: '',
 			pass: '',
+			
 			pushbullet: {
 				// Grab your access token here: https://www.pushbullet.com/account
 				accessToken: '',
