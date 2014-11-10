@@ -61,5 +61,10 @@ Choose which device to send to like so: `deviceId: 'abcdefghijklmnopqrstu4',`
 node main.js
 ```
 
+## Screenshots
+
+### New Notification
+![](http://i.imgur.com/V3oQJ5vl.png) ![](http://i.imgur.com/6bOBb3vl.png) ![](http://i.imgur.com/Om8JtP8l.png)
+
 ## License
 Licensed under the MIT license.
