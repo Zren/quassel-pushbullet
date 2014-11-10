@@ -20,21 +20,27 @@ var config = {
 				accessToken: '',
 
 				// Which device to send the notification to.
-				// All Devices: null
+				// All Devices: Do not specify a deviceId or deviceNickname.
 				// Single Device:
 				// 		A DeviceId will look like: ujAjoxHjkmidjAiVsKnSTs
 				// 		To find a deviceId, either:
-				//			*	Run quassel-push without a deviceId specified, it will list all devices it pushes to.
-				//				Kill it and set the new id before restarting it.
+				//			*	Run quassel-push without a device specified, it will list all devices it pushes to.
+				//				Kill it and set the new id before restarting quassel-push.
 				//			*	Visit https://www.pushbullet.com/ and click a device.
 				//				The URL should now look like https://www.pushbullet.com/?device_iden=ujAjoxHjkmidjAiVsKnSTs
 				//				Copy the device id from the URL.
 				// Eg: deviceId: 'ujAjoxHjkmidjAiVsKnSTs',
-				deviceId: null,
+				deviceId: '',
 
 				// OR
 				//		Specify a device nickname.
-				deviceNickname: null,
+				deviceNickname: '',
+			},
+
+			// This is the configuration for linking to a quassel-webserver in the footer of the notification.
+			// https://github.com/magne4000/quassel-webserver
+			webserver: {
+				host: ''
 			}
 		}
 	}

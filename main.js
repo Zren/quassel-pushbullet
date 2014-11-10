@@ -63,6 +63,18 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		});
 	}
 
+	function generateNotificationFooter(coreConfig, userConfig, buffer, message) {
+		if (userConfig.webserver && userConfig.webserver.host) {
+			var url = 'http://' + userConfig.webserver.host + '/';
+			url += '?host=' + coreConfig.host;
+			url += '&user=' + userConfig.name;
+			url += '&bufferId=' + buffer.id;
+			return '\n' + url;
+		} else {
+			return '';
+		}
+	}
+
 	async.series([
 		function(cb) {
 			// Validate deviceId.
@@ -149,24 +161,35 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 				// logger.debug.apply(console, args);
 			});
 
+			quassel.on('login', function() {
+				console.log('Logged into QuasselCore');
+			});
+
+			quassel.on('loginfailed', function() {
+				console.log('Failed to login into QuasselCore');
+				quassel.disconnect();
+			});
+
 			//
 			quassel.on('buffer.message', function(bufferId, messageId) {
 				var buffer = quassel.getNetworks().findBuffer(bufferId);
 				var message = buffer.messages.get(messageId);
 
 				if (message.type == MessageType.Plain || message.type == MessageType.Action) {
-					// logger.debug('buffer.message', buffer.name, message.getNick(), message.content);			
+					// logger.debug('buffer.message', buffer.name, message.getNick(), message.content);
 
 					if (message.isSelf())
 						return;
 
 					if (buffer.type == BufferType.QueryBuffer) {
-						var title = message.getNick();
+						var title = message.getNick() + ':';
 						var body = message.content;
+						body += generateNotificationFooter(coreConfig, userConfig, buffer, message);
 						sendNotification(title, body);
 					} else if (buffer.type == BufferType.ChannelBuffer && message.isHighlighted()) {
-						var title = message.getNick() + ' - ' + buffer.name;
+						var title = '[' + buffer.name + '] ' + message.getNick() + ':';
 						var body = message.content;
+						body += generateNotificationFooter(coreConfig, userConfig, buffer, message);
 						sendNotification(title, body);
 					}
 				}
