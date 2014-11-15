@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
+git remote set-url origin git@github.com:Zren/quassel-pushbullet.git
 git pull
 npm update

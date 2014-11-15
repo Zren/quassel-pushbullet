@@ -1,4 +1,4 @@
-# quassel-push
+# quassel-pushbullet
 
 A service that monitors your quassel account for highlights and sends a pushbullet notification.
 
@@ -22,10 +22,10 @@ TODO
 
 https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#debian-and-ubuntu-based-linux-distributions
 
-### Installing quassel-push
+### Installing quassel-pushbullet
 ```
-git clone https://github.com/Zren/quassel-push.git
-cd quassel-push
+git clone https://github.com/Zren/quassel-pushbullet.git
+cd quassel-pushbullet
 npm install --production
 ```
 

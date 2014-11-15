@@ -1,23 +1,23 @@
 {
-  "name": "quassel-push",
+  "name": "quassel-pushbullet",
   "description": "Quassel notifications using PushBullet",
   "version": "0.0.8",
-  "homepage": "https://github.com/Zren/quassel-push",
+  "homepage": "https://github.com/Zren/quassel-pushbullet",
   "author": {
     "name": "Chris Holland",
     "email": "zrenfire@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Zren/quassel-push.git"
+    "url": "git://github.com/Zren/quassel-pushbullet.git"
   },
   "bugs": {
-    "url": "https://github.com/Zren/quassel-push/issues"
+    "url": "https://github.com/Zren/quassel-pushbullet/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/Zren/quassel-push/blob/master/LICENSE-MIT"
+      "url": "https://github.com/Zren/quassel-pushbullet/blob/master/LICENSE-MIT"
     }
   ],
   "engines": {

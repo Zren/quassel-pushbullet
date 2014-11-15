@@ -25,8 +25,8 @@ var config = {
 				// Single Device:
 				// 		A DeviceId will look like: ujAjoxHjkmidjAiVsKnSTs
 				// 		To find a deviceId, either:
-				//			*	Run quassel-push without a device specified, it will list all devices it pushes to.
-				//				Kill it and set the new id before restarting quassel-push.
+				//			*	Run quassel-pushbullet without a device specified, it will list all devices it pushes to.
+				//				Kill it and set the new id before restarting quassel-pushbullet.
 				//			*	Visit https://www.pushbullet.com/ and click a device.
 				//				The URL should now look like https://www.pushbullet.com/?device_iden=ujAjoxHjkmidjAiVsKnSTs
 				//				Copy the device id from the URL.
