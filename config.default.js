@@ -2,6 +2,7 @@ var config = {
 	// Debugging
 	debug: false,
 	debugLibQuassel: false,
+	debugLibQuasselEvents: false,
 	// Debug PushBullet by setting the environment variable NODE_DEBUG=request
 	// Eg: NODE_DEBUG=request node main.js
 

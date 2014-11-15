@@ -63,8 +63,8 @@ node main.js
 
 ## Screenshots
 
-### New Notification
-![](http://i.imgur.com/V3oQJ5vl.png) ![](http://i.imgur.com/6bOBb3vl.png) ![](http://i.imgur.com/Om8JtP8l.png)
+### New Notification - Android
+![](http://i.imgur.com/V3oQJ5vl.png) ![](http://i.imgur.com/6bOBb3vl.png) ![](http://i.imgur.com/Om8JtP8l.png) ![](http://i.imgur.com/ri332dPl.png)
 
 ## License
 Licensed under the MIT license.

@@ -155,14 +155,27 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 			});
 
 			// Debugging.
-			quassel.on('**', function() {
-				var args = Array.prototype.slice.call(arguments);
-				args.unshift(this.event);
-				// logger.debug.apply(console, args);
-			});
+			if (config.debugLibQuasselEvents) {
+					quassel.on('**', function() {
+					var args = Array.prototype.slice.call(arguments);
+					args.unshift(this.event);
+					logger.debug.apply(console, args);
+				});
+			}
 
 			quassel.on('login', function() {
 				console.log('Logged into QuasselCore');
+
+				// Don't die when libquassel parses an event badly.
+				// Note that the 'uncaughtException' event may be deprecated in the future.
+				// It's also not advised, however it does work in our case.
+				process.on('uncaughtException', function(err) {
+					console.log('===========================');
+					console.log('[uncaughtException]', err.message);
+					console.log(err.stack);
+					console.log('===========================');
+				});
+
 			});
 
 			quassel.on('loginfailed', function() {
