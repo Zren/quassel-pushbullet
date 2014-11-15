@@ -51,28 +51,53 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 	pusher.handleResponse = handleResponse; // Mixin our own error handler.
 	var deviceId = userConfig.pushbullet.deviceId;
 
-	function sendNotification(title, body) {
+	function sendNotification(type, title, body) {
 		logger.debug('[PushBullet]', {
 			deviceId: deviceId,
 			title: title,
 			body: body
 		});
-		pusher.note(deviceId, title, body, function(err, response) {
+
+		var pushFn = type == 'link' ? pusher.link : pusher.note;
+		var callback = function(err, response) {
 			if (err) return console.log('[PushBullet] [error]', typeof err === 'object' ? JSON.stringify(err) : err);
 			logger.debug('[PushBullet]', response);
-		});
+		};
+		if (type == 'link') {
+			pusher.link(deviceId, title, body, callback);
+		} else if (type == 'note') {
+			pusher.note(deviceId, title, body, callback);
+		}
 	}
 
-	function generateNotificationFooter(coreConfig, userConfig, buffer, message) {
+	function buildNotification(buffer, message) {
+		var type = 'note';
+		var title, body, url;
 		if (userConfig.webserver && userConfig.webserver.host) {
-			var url = 'http://' + userConfig.webserver.host + '/';
+			type = 'link';
+			url = 'http://' + userConfig.webserver.host + '/';
 			url += '?host=' + coreConfig.host;
 			url += '&user=' + userConfig.name;
 			url += '&bufferId=' + buffer.id;
-			return '\n' + url;
-		} else {
-			return '';
 		}
+		
+		if (buffer.type == BufferType.QueryBuffer) {
+			title = message.getNick() + ':';
+		} else if (buffer.type == BufferType.ChannelBuffer && message.isHighlighted()) {
+			title = '[' + buffer.name + '] ' + message.getNick() + ':';
+		}
+		if (type == 'link') {
+			title += ' ' + message.content;
+			body = url;
+		} else {
+			body = message.content;
+		}
+
+		return {
+			type: type,
+			title: title,
+			body: body
+		};
 	}
 
 	async.series([
@@ -195,15 +220,11 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 						return;
 
 					if (buffer.type == BufferType.QueryBuffer) {
-						var title = message.getNick() + ':';
-						var body = message.content;
-						body += generateNotificationFooter(coreConfig, userConfig, buffer, message);
-						sendNotification(title, body);
+						var data = buildNotification(buffer, message);
+						sendNotification(data.type, data.title, data.body);
 					} else if (buffer.type == BufferType.ChannelBuffer && message.isHighlighted()) {
-						var title = '[' + buffer.name + '] ' + message.getNick() + ':';
-						var body = message.content;
-						body += generateNotificationFooter(coreConfig, userConfig, buffer, message);
-						sendNotification(title, body);
+						var data = buildNotification(buffer, message);
+						sendNotification(data.type, data.title, data.body);
 					}
 				}
 			});
