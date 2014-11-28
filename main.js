@@ -148,8 +148,8 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		if (notificationQueue[bufferId].length > 0) {
 			var firstNotification = notificationQueue[bufferId][0];
 			var lastNotification = notificationQueue[bufferId][notificationQueue[bufferId].length - 1];
-			var hasRecentNotication = (now - lastNotification.timestamp) < (10000 - 100); // The -100ms is in case setTimout fires early.
-			var reachedMaxDelay = (now - firstNotification.timestamp) >= 30000;
+			var hasRecentNotication = (now - lastNotification.timestamp) < (userConfig.pushbullet.delayBeforePushing - 100); // The -100ms is in case setTimout fires early.
+			var reachedMaxDelay = (now - firstNotification.timestamp) >= userConfig.pushbullet.maxDelayBeforePushing;
 			if (!hasRecentNotication || reachedMaxDelay) {
 				unloadQueue = true;
 			}
@@ -178,7 +178,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		// Probably should clear previous timeout instead of checking when the timeout wakes, but meh.
 		setTimeout(function(){
 			checkNotificationQueue(bufferId);
-		}, 10000);
+		}, userConfig.pushbullet.delayBeforePushing);
 	}
 
 	function clearNotificationQueue(bufferId) {
