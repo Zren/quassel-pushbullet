@@ -51,6 +51,9 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 	pusher.handleResponse = handleResponse; // Mixin our own error handler.
 	var deviceId = userConfig.pushbullet.deviceId;
 
+	var notificationQueue = {}; // {bufferId: [{timestamp: Date, buffer: Buffer, message: Message}, ...], ...}
+	var pushLog = {}; // {bufferId, [pushIden, ...], ...}
+
 	function sendNotification(type, title, body) {
 		logger.debug('[PushBullet]', {
 			deviceId: deviceId,
@@ -99,6 +102,83 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 			body: body
 		};
 	}
+
+	function buildNotificationList(notifications) {
+		var type = 'note';
+		var buffer = notifications[0].buffer;
+		var title = '[' + buffer.name + '] (' + notifications.length + ' Messages) (Waited: ' + (Date.now() - notifications[0].timestamp) + 'ms)';
+		var body = notifications[0].message.content;
+		for (var i = 1; i < notifications.length; i++) {
+			body += '\n' + notifications[i].message.content;
+		}
+
+		return {
+			type: type,
+			title: title,
+			body: body
+		};
+	}
+
+	function sendQueuedNotifications(bufferId) {console.log('sendQueuedNotifications', arguments);
+		var notifications = notificationQueue[bufferId].splice(0); // Move all elements to a new array in case new ones appear.
+		if (notifications.length <= 0) return;
+
+		var data;
+		if (notifications.length == 1) {
+			data = buildNotification(notifications[0].buffer, notifications[0].message);
+		} else {
+			data = buildNotificationList(notifications);
+		}
+		sendNotification(data.type, data.title, data.body);
+	}
+
+	function checkNotificationQueue(bufferId) {console.log('checkNotificationQueue', arguments);
+		var now = Date.now();
+
+		// Check if we should 
+		var unloadQueue = false;
+		if (notificationQueue[bufferId].length > 0) {
+			var firstNotification = notificationQueue[bufferId][0];
+			var lastNotification = notificationQueue[bufferId][notificationQueue[bufferId].length - 1];
+			var hasRecentNotication = (now - lastNotification.timestamp) < (10000 - 100); // The -100ms is in case setTimout fires early.
+			var reachedMaxDelay = (now - firstNotification.timestamp) >= 30000;
+			if (!hasRecentNotication || reachedMaxDelay) {
+				unloadQueue = true;
+			}
+		}
+
+		console.log('checkNotificationQueue', now - lastNotification.timestamp, unloadQueue)
+		if (unloadQueue) {
+			sendQueuedNotifications(bufferId);
+		}
+	}
+
+	function queueNotification(buffer, message) {console.log('queueNotification');
+		var bufferId = buffer.id;
+		if (!notificationQueue[bufferId]) {
+			notificationQueue[bufferId] = [];
+		}
+
+		// Queue Notification
+		var notification = {
+			timestamp: Date.now(),
+			buffer: buffer,
+			message: message
+		};
+		notificationQueue[bufferId].push(notification);
+
+		// Delay sending the notification(s).
+		// Probably should clear previous timeout instead of checking when the timeout wakes, but meh.
+		setTimeout(function(){
+			checkNotificationQueue(bufferId);
+		}, 10000);
+	}
+
+	function clearNotificationQueue(bufferId) {
+		notificationQueue[bufferId].splice(0);
+	}
+
+	function delete
 
 	async.series([
 		function(cb) {
@@ -220,11 +300,13 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 						return;
 
 					if (buffer.type == BufferType.QueryBuffer) {
-						var data = buildNotification(buffer, message);
-						sendNotification(data.type, data.title, data.body);
+						// var data = buildNotification(buffer, message);
+						// sendNotification(data.type, data.title, data.body);
+						queueNotification(buffer, message);
 					} else if (buffer.type == BufferType.ChannelBuffer && message.isHighlighted()) {
-						var data = buildNotification(buffer, message);
-						sendNotification(data.type, data.title, data.body);
+						// var data = buildNotification(buffer, message);
+						// sendNotification(data.type, data.title, data.body);
+						queueNotification(buffer, message);
 					}
 				}
 			});
