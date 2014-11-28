@@ -54,7 +54,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 	var notificationQueue = {}; // {bufferId: [{timestamp: Date, buffer: Buffer, message: Message}, ...], ...}
 	var pushLog = {}; // {bufferId, [pushIden, ...], ...}
 
-	function sendNotification(type, title, body) {
+	function sendNotification(type, title, body, bufferId) {
 		logger.debug('[PushBullet]', {
 			deviceId: deviceId,
 			title: title,
@@ -65,6 +65,13 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		var callback = function(err, response) {
 			if (err) return console.log('[PushBullet] [error]', typeof err === 'object' ? JSON.stringify(err) : err);
 			logger.debug('[PushBullet]', response);
+			if (bufferId) {
+				if (!pushLog[bufferId]) {
+					pushLog[bufferId] = [];
+				}
+				pushLog[bufferId].push(response.iden);
+				logger.debug('pushLog', bufferId, pushLog[bufferId]);
+			}
 		};
 		if (type == 'link') {
 			pusher.link(deviceId, title, body, callback);
@@ -105,9 +112,10 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 
 	function buildNotificationList(notifications) {
 		var type = 'note';
-		var buffer = notifications[0].buffer;
-		var title = '[' + buffer.name + '] (' + notifications.length + ' Messages) (Waited: ' + (Date.now() - notifications[0].timestamp) + 'ms)';
-		var body = notifications[0].message.content;
+		var firstNotification = notifications[0];
+		var buffer = firstNotification.buffer;
+		var title = '[' + buffer.name + '] (' + notifications.length + ' Messages) (Waited: ' + (Date.now() - firstNotification.timestamp) + 'ms)';
+		var body = firstNotification.message.content;
 		for (var i = 1; i < notifications.length; i++) {
 			body += '\n' + notifications[i].message.content;
 		}
@@ -129,7 +137,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		} else {
 			data = buildNotificationList(notifications);
 		}
-		sendNotification(data.type, data.title, data.body);
+		sendNotification(data.type, data.title, data.body, bufferId);
 	}
 
 	function checkNotificationQueue(bufferId) {console.log('checkNotificationQueue', arguments);
@@ -147,7 +155,6 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 			}
 		}
 
-		console.log('checkNotificationQueue', now - lastNotification.timestamp, unloadQueue)
 		if (unloadQueue) {
 			sendQueuedNotifications(bufferId);
 		}
@@ -175,10 +182,24 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 	}
 
 	function clearNotificationQueue(bufferId) {
-		notificationQueue[bufferId].splice(0);
+		if (notificationQueue[bufferId]) {
+			logger.debug('clearNotificationQueue', bufferId);
+			notificationQueue[bufferId].splice(0);
+		}
 	}
 
-	function delete
+	function deleteNotitications(bufferId) {
+		var bufferPushes = pushLog[bufferId];
+		if (!bufferPushes) return;
+		bufferPushes = bufferPushes.splice(0);
+		logger.debug('deleteNotitications', bufferId, bufferPushes);
+		for (var i = 0; i < bufferPushes.length; i++) {
+			var pushIden = bufferPushes[i];
+			pusher.deletePush(pushIden, function(err, response) {
+				logger.debug('deletePush', bufferId, pushIden);
+			});
+		}
+	}
 
 	async.series([
 		function(cb) {
@@ -308,6 +329,17 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 						// sendNotification(data.type, data.title, data.body);
 						queueNotification(buffer, message);
 					}
+				}
+			});
+
+			//
+			quassel.on('buffer.read', function(bufferId) {
+				var buffer = quassel.getNetworks().findBuffer(bufferId);
+				if (userConfig.pushbullet.ignoreNotificationsFromReadBuffer) {
+					clearNotificationQueue(bufferId);
+				}
+				if (userConfig.pushbullet.deletePushesFromReadBuffer) {
+					deleteNotitications(bufferId);
 				}
 			});
 

@@ -38,14 +38,18 @@ var config = {
 				deviceNickname: '',
 
 				// Time to wait in Milliseconds before sending the notification.
-				//   * If it recieves a MarkBufferAsRead signal, it will not send
-				//     a notification since another quassel client read the message.
 				//   * If another message is recieved on the same buffer that triggers
 				//     a notification, the delay restarts and groups the notifications.
 				//   * If a second message is recieved, it will group the notifications
 				//     into a single push.
 				delayBeforePushing: 10000, // milliseconds. = 10 seconds
 				maxDelayBeforePushing: 30000, // milliseconds. = 30 seconds
+
+				// Don't send any delayed messages if a buffer is marked as read by another Quassel client.
+				ignoreNotificationsFromReadBuffer: true,
+
+				// Delete pushes if a Quassel client marks a buffer as read.
+				deletePushesFromReadBuffer: true,
 			},
 
 			// This is the configuration for linking to a quassel-webserver in the footer of the notification.
