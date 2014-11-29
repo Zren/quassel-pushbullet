@@ -4,6 +4,10 @@ A service that monitors your quassel account for highlights and sends a pushbull
 
 ![](http://i.imgur.com/H4qcmr8.png)
 
+## Support
+
+[#quassel-pushbullet](http://webchat.freenode.net?channels=%23quassel-pushbullet) on Freenode
+
 ## Requirements
 * NodeJS
 * PushBullet Account
