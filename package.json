@@ -1,7 +1,7 @@
 {
   "name": "quassel-pushbullet",
   "description": "Quassel notifications using PushBullet",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "homepage": "https://github.com/Zren/quassel-pushbullet",
   "author": {
     "name": "Chris Holland",
