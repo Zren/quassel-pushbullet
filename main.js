@@ -114,7 +114,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		var type = 'note';
 		var firstNotification = notifications[0];
 		var buffer = firstNotification.buffer;
-		var title = '[' + buffer.name + '] (' + notifications.length + ' Messages) (Waited: ' + (Date.now() - firstNotification.timestamp) + 'ms)';
+		var title = '[' + buffer.name + '] (' + notifications.length + ' Messages)';
 		var body = firstNotification.message.content;
 		for (var i = 1; i < notifications.length; i++) {
 			body += '\n' + notifications[i].message.content;
