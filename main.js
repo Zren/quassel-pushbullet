@@ -343,6 +343,17 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 				}
 			});
 
+			quassel.on('_error', function(err) {
+				console.log('===========================');
+				if (err.message && err.stack) {
+					console.log('[error]', err.message);
+					console.log(err.stack);
+				} else {
+					console.log('[error]', err);
+				}
+				console.log('===========================');
+			});
+
 			console.log('Connecting to QuasselCore');
 			quassel.connect();
 			cb();
