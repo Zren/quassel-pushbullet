@@ -202,8 +202,8 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 	}
 
 	async.series([
+		// Validate deviceId.
 		function(cb) {
-			// Validate deviceId.
 			async.waterfall([
 				function(cb) {
 					console.log('Fetching PushBullet device list');
@@ -238,10 +238,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 							console.log('', device.iden, device.nickname);
 						}
 						// And exit.
-						return cb({
-							msg: 'Device not found.',
-							exit: true
-						});
+						return cb('Device not found.');
 
 					} else {
 						// deviceId/deviceNickname not specified so we don't need to validate it exists.
@@ -260,16 +257,10 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 		// Connect to Quassel
 		function(cb) {
 			if (!coreConfig.host || !coreConfig.port) {
-				return cb({
-					msg: 'Please config the QuasselCore host/port.',
-					exit: true
-				});
+				return cb('Please config the QuasselCore host/port.');
 			}
 			if (!userConfig.name || !userConfig.pass) {
-				return cb({
-					msg: 'Please config the QuasselCore name/pass.',
-					exit: true
-				});
+				return cb('Please config the QuasselCore name/pass.');
 			}
 			var quassel = new Quassel(coreConfig.host, coreConfig.port, {
 				nobacklog: true,
@@ -282,13 +273,28 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 
 			// Debugging.
 			if (config.debugLibQuasselEvents) {
-					quassel.on('**', function() {
+				quassel.on('**', function() {
 					var args = Array.prototype.slice.call(arguments);
 					args.unshift(this.event);
 					logger.debug.apply(console, args);
 				});
 			}
 
+			// Reconnection logic in case we disconnect from the core.
+			quassel.reconnectOnDisconnect = true; // Make sure to set to false if you want to force a disconnect.
+			quassel.client.on('close', function(hadError) {
+				console.log('Socket to QuasselCore closed');
+				if (quassel.reconnectOnDisconnect) {
+					console.log('Reconnecting to QuasselCore');
+					connectToQuasselCore(coreConfig, userConfig, callback);
+				}
+			});
+			quassel.disconnectAndExit = function() {
+				quassel.reconnectOnDisconnect = false;
+				quassel.disconnect();
+			};
+
+			// 
 			quassel.on('login', function() {
 				console.log('Logged into QuasselCore');
 
@@ -306,10 +312,11 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 
 			quassel.on('loginfailed', function() {
 				console.log('Failed to login into QuasselCore');
-				quassel.disconnect();
+				quassel.disconnectAndExit();
 			});
 
-			//
+			// When a new message arrives, check if it's highlighted message, or if it's from a query buffer.
+			// If so, queue the message, and set a timeout before sending it in case we need to group them.
 			quassel.on('buffer.message', function(bufferId, messageId) {
 				var buffer = quassel.getNetworks().findBuffer(bufferId);
 				var message = buffer.messages.get(messageId);
@@ -332,7 +339,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 				}
 			});
 
-			//
+			// When a buffer is read, clear any queued notifications, and delete any pushes that were already sent for that buffer.
 			quassel.on('buffer.read', function(bufferId) {
 				var buffer = quassel.getNetworks().findBuffer(bufferId);
 				if (userConfig.pushbullet.ignoreNotificationsFromReadBuffer) {
@@ -343,6 +350,7 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 				}
 			});
 
+			// Log errors, but don't exit.
 			quassel.on('_error', function(err) {
 				console.log('===========================');
 				if (err.message && err.stack) {
@@ -354,8 +362,18 @@ function connectToQuasselCore(coreConfig, userConfig, callback) {
 				console.log('===========================');
 			});
 
+			quassel.client.once('data', function() {
+				quasel.qtsocket.on('error', function(){
+					quassel.disconnect();
+				});
+			});
+
 			console.log('Connecting to QuasselCore');
 			quassel.connect();
+			// setTimeout(function(){
+			// 	console.log('Test disconnect');
+			// 	quassel.disconnect();
+			// }, 10000);
 			cb();
 		}
 	], function(err) {
