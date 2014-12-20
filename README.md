@@ -1,6 +1,6 @@
 # quassel-pushbullet
 
-A service that monitors your quassel account for highlights and sends a pushbullet notification.
+A service that monitors your quassel account for highlights and sends a pushbullet notification. quassel-pushbullet uses libquassel which is a simple implementation of the network part of QuasselClient in NodeJS.
 
 ![](http://i.imgur.com/H4qcmr8.png)
 
@@ -9,16 +9,18 @@ A service that monitors your quassel account for highlights and sends a pushbull
 [#quassel-pushbullet](http://webchat.freenode.net?channels=%23quassel-pushbullet) on Freenode
 
 ## Requirements
-* NodeJS
+* NodeJS v11.x
 * PushBullet Account
 * QuasselCore
 
 
 ## Install
 
-### Installing Node
+### Installing NodeJS
 
-#### Windows
+* [Linux](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#debian-and-ubuntu-based-linux-distributions)
+* [OS X](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#osx)
+* [Windows](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#windows)
 
 TODO
 
