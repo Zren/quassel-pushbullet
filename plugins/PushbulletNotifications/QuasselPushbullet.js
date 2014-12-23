@@ -227,6 +227,7 @@ QuasselPushbullet.prototype.clearNotificationQueue = function(bufferId) {
 };
 
 QuasselPushbullet.prototype.deleteNotitications = function(bufferId) {
+	var self = this;
 	var bufferPushes = this.pushLog[bufferId];
 	if (!bufferPushes) return;
 	bufferPushes = bufferPushes.splice(0);
@@ -234,7 +235,7 @@ QuasselPushbullet.prototype.deleteNotitications = function(bufferId) {
 	for (var i = 0; i < bufferPushes.length; i++) {
 		var pushIden = bufferPushes[i];
 		this.pushbullet.deletePush(pushIden, function(err, response) {
-			this.quasselClient.logDebug('deletePush', bufferId, pushIden);
+			self.quasselClient.logDebug('deletePush', bufferId, pushIden);
 		});
 	}
 };
