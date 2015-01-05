@@ -1,3 +1,11 @@
+// Check if NodeJS is <= v0.10.x, since libquassel requires v0.11.x at minimum.
+var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(process.version);
+var nodeMinorVersion = parseInt(m[2], 10);
+if (nodeMinorVersion <= 10) {
+    console.log('libquassel requires NodeJS v11. You have ' + process.version);
+    process.exit(1);
+}
+
 var async = require('async');
 var path = require('path');
 var QuasselClient = require('./lib/QuasselClient');
