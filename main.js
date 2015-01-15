@@ -1,9 +1,7 @@
-// Check if NodeJS is <= v0.10.x, since libquassel requires v0.11.x at minimum.
-var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(process.version);
-var nodeMinorVersion = parseInt(m[2], 10);
-if (nodeMinorVersion <= 10) {
-    console.log('libquassel requires NodeJS v11. You have ' + process.version);
-    process.exit(1);
+// Check if the current NodeJS supports ES6 which libquassel requires.
+if ('function' !== typeof Map) {
+	console.log('libquassel requires ES6 (NodeJS v11+). You have ' + process.version);
+	process.exit(1);
 }
 
 var async = require('async');
@@ -37,8 +35,8 @@ var main = function(config) {
 			options.coreConfig = coreConfig;
 			options.userConfig = userConfig;
 			quasselClient = new QuasselClient(options);
-			pluginManager = new PluginManager(quasselClient, path.join(__dirname, 'plugins'));
-			pluginManager.loadPlugins();
+			pluginManager = new PluginManager(quasselClient);
+			pluginManager.loadPlugins(path.join(__dirname, 'plugins'));
 			cb();
 		},
 
