@@ -1,5 +1,7 @@
-// Check if the current NodeJS supports ES6 which libquassel requires.
-if ('function' !== typeof Map) {
+// Check if the current NodeJS is >= 0.11.0 (or IO.JS) which libquassel requires.
+var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(process.version);
+var nodeMinorVersion = parseInt(m[2], 10);
+if (nodeMinorVersion <= 10 && typeof Map !== 'function') {
 	console.log('libquassel requires ES6 (NodeJS v11+). You have ' + process.version);
 	process.exit(1);
 }
