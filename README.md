@@ -4,9 +4,15 @@ A service that monitors your quassel account for highlights and sends a pushbull
 
 ![](http://i.imgur.com/H4qcmr8.png)
 
+## :warning: Abandoned :warning:
+
+No more work will be done on this by me. NodeJS is too memory hungry (50Mb+) for something like this so I rewrote this and libquassel in Python and got it down to 18Mb of RAM.
+
+See: https://github.com/Zren/PyQuassel
+
 ## Support
 
-[#quassel-pushbullet](http://webchat.freenode.net?channels=%23quassel-pushbullet) on Freenode
+Ask for Zren on [#quassel](http://webchat.freenode.net?channels=%23quassel) on Freenode
 
 ## Requirements
 * NodeJS v11.x
